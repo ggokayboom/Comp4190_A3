@@ -182,99 +182,134 @@ def main( argv = None ):
 
     obs_count = int(argv[0])
     # obs_count = 40
+    iterations = 1.0 # specify # of times to run map generation & Quadtree, FBSP, RRT (used for comparison of run times)
+    # avg times
+    # TODO: add RRT averages
+    qtd_decomp_avg = 0.0
+    qtd_star_avg = 0.0
+    qtd_path_avg = 0.0
+    fbsp_decomp_avg = 0.0
+    fbsp_star_avg = 0.0
+    fbsp_path_avg = 0.0
+
     if obs_count >= 30:
         obs_width = obs_height = 2.0
     else:
         obs_width = obs_height = 5.0
 
-    pp = PathPlanningProblem( width, height, obs_count, obs_width, obs_height)
+    for i in range(iterations):
+        pp = PathPlanningProblem( width, height, obs_count, obs_width, obs_height)
 
-    qtd_start = time.perf_counter()
-    qtd = QuadTreeDecomposition(pp, 0.1)
-    qtd_end = time.perf_counter()
-    initial, goals = pp.CreateProblemInstance(qtd.free_nodes)
+        qtd_start = time.perf_counter()
+        qtd = QuadTreeDecomposition(pp, 0.1)
+        qtd_end = time.perf_counter()
+        initial, goals = pp.CreateProblemInstance()
 
-    fig = plt.figure()
-    ax = fig.add_subplot(1,2,1, aspect='equal')
-    ax.set_xlim(0.0, width)
-    ax.set_ylim(0.0, height)
+        fig = plt.figure()
+        ax = fig.add_subplot(1,2,1, aspect='equal')
+        ax.set_xlim(0.0, width)
+        ax.set_ylim(0.0, height)
 
-    for o in pp.obstacles:
-        ax.add_patch(copy.copy(o.patch) )
-    ip = plt.Rectangle((initial.x,initial.y), initial.width, initial.height, facecolor='#ff0000')
-    ax.add_patch(ip)
+        for o in pp.obstacles:
+            ax.add_patch(copy.copy(o.patch) )
+        ip = plt.Rectangle((initial.x,initial.y), initial.width, initial.height, facecolor='#ff0000')
+        ax.add_patch(ip)
 
-    # for g in goals:
-    g = plt.Rectangle((goals.x,goals.y), goals.width, goals.height, facecolor='#00ff00')
-    ax.add_patch(g)
-    # print(initial.x, initial.y)
-    # print(goals.x, goals.y)
-    # qtd.Draw(ax)
-    # plt.show()
+        # for g in goals:
+        g = plt.Rectangle((goals.x,goals.y), goals.width, goals.height, facecolor='#00ff00')
+        ax.add_patch(g)
+        # print(initial.x, initial.y)
+        # print(goals.x, goals.y)
+        # qtd.Draw(ax)
+        # plt.show()
 
-    # run A*
-    qtd_star_start_time = time.perf_counter()
-    path = AStar(qtd,initial,goals).path_to_goal
-    qtd_path_len = len(path)
-    qtd_star_end_time = time.perf_counter()
-    
-    x_cord = []
-    y_cord = []
-    for cord in path:
-        x_cord += [cord[0]]
-        y_cord += [cord[1]]
-    plt.plot(x_cord,y_cord,'-')
+        # run A*
+        qtd_star_start_time = time.perf_counter()
+        path = AStar(qtd,initial,goals).path_to_goal
+        qtd_star_end_time = time.perf_counter()
+        qtd_path_len = len(path)
+        x_cord = []
+        y_cord = []
+        for cord in path:
+            x_cord += [cord[0]]
+            y_cord += [cord[1]]
+        plt.plot(x_cord,y_cord,'-')
 
-    qtd.Draw(ax)
-    n = qtd.CountCells()
-    ax.set_title('Quadtree Decomposition\n{0} cells'.format(n))
+        qtd.Draw(ax)
+        n = qtd.CountCells()
+        ax.set_title('Quadtree Decomposition\n{0} cells'.format(n))
 
-    ax = fig.add_subplot(1,2,2, aspect='equal')
-    ax.set_xlim(0.0, width)
-    ax.set_ylim(0.0, height)
+        ax = fig.add_subplot(1,2,2, aspect='equal')
+        ax.set_xlim(0.0, width)
+        ax.set_ylim(0.0, height)
 
-    fbsp_start = time.perf_counter()
-    bsp = BinarySpacePartitioning(pp, 0.1)
-    fbsp_end = time.perf_counter()
-    # initial, goals = pp.CreateProblemInstance(bsp.free_nodes)
+        fbsp_start = time.perf_counter()
+        bsp = BinarySpacePartitioning(pp, 0.1)
+        fbsp_end = time.perf_counter()
 
-    for o in pp.obstacles:
-        ax.add_patch(copy.copy(o.patch))
-    ip = plt.Rectangle((initial.x,initial.y), initial.width, initial.height, facecolor='#ff0000')
-    ax.add_patch(ip)
+        for o in pp.obstacles:
+            ax.add_patch(copy.copy(o.patch))
+        ip = plt.Rectangle((initial.x,initial.y), initial.width, initial.height, facecolor='#ff0000')
+        ax.add_patch(ip)
 
-    # for g in goals:
-    g = plt.Rectangle((goals.x,goals.y), goals.width, goals.height, facecolor='#00ff00')
-    ax.add_patch(g)
+        # for g in goals:
+        g = plt.Rectangle((goals.x,goals.y), goals.width, goals.height, facecolor='#00ff00')
+        ax.add_patch(g)
 
-    # run A*
-    fbsp_star_start_time = time.perf_counter()
-    path = AStar(bsp,initial,goals).path_to_goal
-    fbsp_star_end_time = time.perf_counter()
-    
-    fbsp_path_len = len(path)
+        # run A*
+        fbsp_star_start_time = time.perf_counter()
+        path = AStar(bsp,initial,goals).path_to_goal
+        fbsp_star_end_time = time.perf_counter()
+        
+        fbsp_path_len = len(path)
 
-    x_cord = []
-    y_cord = []
-    for cord in path:
-        x_cord += [cord[0]]
-        y_cord += [cord[1]]
-    plt.plot(x_cord,y_cord,'-')
+        x_cord = []
+        y_cord = []
+        for cord in path:
+            x_cord += [cord[0]]
+            y_cord += [cord[1]]
+        plt.plot(x_cord,y_cord,'-')
 
-    bsp.Draw(ax)
-    n = bsp.CountCells()
-    ax.set_title('BSP Decomposition\n{0} cells'.format(n))
+        bsp.Draw(ax)
+        n = bsp.CountCells()
+        ax.set_title('BSP Decomposition\n{0} cells'.format(n))
 
-    plt.show()
+        plt.show()
 
-    print('\n')
-    print("Quadtree Decom Runtime: ", (qtd_end - qtd_start))
-    print('Quadtree A* Runtime: ', (qtd_star_end_time - qtd_star_start_time))
-    print('Quadtree A* path length: ', qtd_path_len)
-    print("FBSP Decomp Runtime: ", (fbsp_end - fbsp_start))
-    print('FBSP A* Runtime: ', (fbsp_star_end_time - fbsp_star_start_time))
-    print('FBSP A* path length: ', fbsp_path_len)
-    print('\n')
+        qtd_decomp_time = qtd_end - qtd_start
+        qtd_star_time = qtd_star_end_time - qtd_star_start_time
+        qtd_decomp_avg += qtd_decomp_time
+        qtd_star_avg += qtd_star_time
+        qtd_path_avg += qtd_path_len
+        fbsp_decomp_time = fbsp_end - fbsp_start
+        fbsp_star_time = fbsp_star_end_time - fbsp_star_start_time
+        fbsp_decomp_avg += fbsp_decomp_time
+        fbsp_star_avg += fbsp_star_time
+        fbsp_path_avg += fbsp_path_len
+        
+        print('\n')
+        if qtd_path_len < 1:
+            print('No path found for Quadtree A*')
+        
+        print("Quadtree Decom Runtime: ", qtd_decomp_time)
+        print('Quadtree A* Runtime: ', qtd_star_time)
+        print('Quadtree A* path length: ', qtd_path_len)
+
+        if fbsp_path_len < 1:
+            print('No path found for FBSP A*')
+
+        print("FBSP Decomp Runtime: ", fbsp_decomp_time)
+        print('FBSP A* Runtime: ', fbsp_star_time)
+        print('FBSP A* path length: ', fbsp_path_len)
+        print('\n')
+
+    if iterations > 1:
+        print("Quadtree AVG Decom Runtime: ", qtd_decomp_avg/iterations)
+        print('Quadtree AVG A* Runtime: ', qtd_star_avg/iterations)
+        print('Quadtree AVG A* path length: ', qtd_path_avg/iterations)
+        print("FBSP AVG Decomp Runtime: ", fbsp_decomp_avg/iterations)
+        print('FBSP AVG A* Runtime: ', fbsp_star_avg/iterations)
+        print('FBSP AVG A* path length: ', fbsp_path_avg/iterations)
         
 if ( __name__ == '__main__' ):
     main()

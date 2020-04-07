@@ -16,8 +16,6 @@ class AStar(object):
         for node in self.free_nodes:
             if node[0].CalculateOverlap(target_rec) > 0:
                 return node
-        
-        print('debug')
         return None
     
     # get neighbor nodes (from free list)
@@ -44,9 +42,9 @@ class AStar(object):
             path.append((mid_x,mid_y))
             curr = curr[-1]
         
-        if len(path) > 1:
-            path.pop(0)
-            path.pop()
+        # if len(path) > 1:
+        #     path.pop(0)
+        #     path.pop()
 
         path.insert(0,(self.goal_point.x,self.goal_point.y))
         path.append((self.start_point.x,self.start_point.y))
@@ -60,7 +58,6 @@ class AStar(object):
 
     # find least cost path from self.start to self.goal and returns it
     def runAStar(self,root):
-
         open = PriorityQueue()
         closed = []
         root += [0] + [0] + [0] # g, h, f 
@@ -84,7 +81,7 @@ class AStar(object):
                 g = curr_node[3] + self.getDistance(curr_node,neighbor)
                 h = self.getDistance(neighbor, self.goal)
                 f = g + h
-                # TODO: make sure path from curr to neighbor doesn't overlap with any obstacles
+
                 if self.exists(neighbor,open.queue):
                     if neighbor[3] > g:
                         neighbor[3] = g

@@ -89,17 +89,17 @@ class PathPlanningProblem:
                 obstacles = obstacles + [obs]
         return obstacles
 
-    def CreateProblemInstance(self, free_nodes):
+    def CreateProblemInstance(self):
         found = False
         while (not found ):
             ix = random.uniform(0.0, self.width)
             iy = random.uniform(0.0, self.height)
 
             oinitial = Obstacle(ix, iy, 0.1, 0.1 )
-            found = False
-            for node in free_nodes:
-                if (node[0].CalculateOverlap(oinitial) > 0.0):
-                    found = True
+            found = True
+            for obs in self.obstacles:
+                if (obs.CalculateOverlap(oinitial) > 0.0):
+                    found = False
                     break
 
         found = False
@@ -108,10 +108,10 @@ class PathPlanningProblem:
             gy = random.uniform(0.0, self.height)
 
             ogoal = Obstacle(gx, gy, 0.1, 0.1 )
-            found = False
-            for node in free_nodes:
-                if ( ogoal.CalculateOverlap( node[0] ) > 0.0 ):
-                    found = True
+            found = True
+            for obs in self.obstacles:
+                if ( obs.CalculateOverlap( ogoal ) > 0.0 ):
+                    found = False
                     break
             if (oinitial.CalculateOverlap(ogoal) > 0.0):
                 found = False
