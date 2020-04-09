@@ -36,18 +36,22 @@ class AStar(object):
     def getPath(self,node):
         path = []
         curr = node
-        while curr:
-            mid_x = (curr[0].x + (curr[0].x + curr[0].width))/2
-            mid_y = (curr[0].y + (curr[0].y + curr[0].height))/2
-            path.append((mid_x,mid_y))
-            curr = curr[-1]
+        if curr:
+            prev = ((curr[0].x + (curr[0].x + curr[0].width))/2,(curr[0].y + (curr[0].y + curr[0].height))/2)
+            while curr:
+                mid_x = (curr[0].x + (curr[0].x + curr[0].width))/2
+                mid_y = (curr[0].y + (curr[0].y + curr[0].height))/2
+                distance = abs(mid_x - prev[0]) + abs(mid_y - prev[1])
+                path.append((mid_x,mid_y,distance))
+                prev = (mid_x,mid_y)
+                curr = curr[-1]
         
         # if len(path) > 1:
         #     path.pop(0)
         #     path.pop()
 
-        path.insert(0,(self.goal_point.x,self.goal_point.y))
-        path.append((self.start_point.x,self.start_point.y))
+        path.insert(0,(self.goal_point.x,self.goal_point.y,0))
+        path.append((self.start_point.x,self.start_point.y,0))
         return path
     
     def exists(self, target_node, node_list):

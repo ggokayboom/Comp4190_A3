@@ -182,7 +182,7 @@ def main( argv = None ):
 
     obs_count = int(argv[0])
     # obs_count = 40
-    iterations = 1.0 # specify # of times to run map generation & Quadtree, FBSP, RRT (used for comparison of run times)
+    iterations = 1 # specify # of times to run map generation & Quadtree, FBSP, RRT (used for comparison of run times)
     # avg times
     # TODO: add RRT averages
     qtd_decomp_avg = 0.0
@@ -225,14 +225,15 @@ def main( argv = None ):
 
         # run A*
         qtd_star_start_time = time.perf_counter()
-        path = AStar(qtd,initial,goals).path_to_goal
+        qtd_path = AStar(qtd,initial,goals).path_to_goal
         qtd_star_end_time = time.perf_counter()
-        qtd_path_len = len(path)
+        qtd_path_len = 0
         x_cord = []
         y_cord = []
-        for cord in path:
+        for cord in qtd_path:
             x_cord += [cord[0]]
             y_cord += [cord[1]]
+            qtd_path_len += cord[2]
         plt.plot(x_cord,y_cord,'-')
 
         qtd.Draw(ax)
@@ -258,16 +259,17 @@ def main( argv = None ):
 
         # run A*
         fbsp_star_start_time = time.perf_counter()
-        path = AStar(bsp,initial,goals).path_to_goal
+        fbsp_path = AStar(bsp,initial,goals).path_to_goal
         fbsp_star_end_time = time.perf_counter()
         
-        fbsp_path_len = len(path)
+        fbsp_path_len = 0
 
         x_cord = []
         y_cord = []
-        for cord in path:
+        for cord in fbsp_path:
             x_cord += [cord[0]]
             y_cord += [cord[1]]
+            fbsp_path_len += cord[2]
         plt.plot(x_cord,y_cord,'-')
 
         bsp.Draw(ax)
@@ -288,14 +290,14 @@ def main( argv = None ):
         fbsp_path_avg += fbsp_path_len
         
         print('\n')
-        if qtd_path_len < 1:
+        if len(qtd_path) < 1:
             print('No path found for Quadtree A*')
         
         print("Quadtree Decom Runtime: ", qtd_decomp_time)
         print('Quadtree A* Runtime: ', qtd_star_time)
         print('Quadtree A* path length: ', qtd_path_len)
 
-        if fbsp_path_len < 1:
+        if len(fbsp_path) < 1:
             print('No path found for FBSP A*')
 
         print("FBSP Decomp Runtime: ", fbsp_decomp_time)
