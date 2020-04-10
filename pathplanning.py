@@ -80,13 +80,7 @@ class PathPlanningProblem:
             if ( y + h ) > self.height:
                 h = self.height - y
             obs = Obstacle(x,y, w, h, '#808080')
-            found = False
-            for o in obstacles:
-                if ( o.CalculateOverlap(obs) > 0.0 ):
-                    found = True
-                    break
-            if ( not found ):
-                obstacles = obstacles + [obs]
+            obstacles = obstacles + [obs]
         return obstacles
 
     def CreateProblemInstance(self):
