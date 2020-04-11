@@ -80,7 +80,13 @@ class PathPlanningProblem:
             if ( y + h ) > self.height:
                 h = self.height - y
             obs = Obstacle(x,y, w, h, '#808080')
-            obstacles = obstacles + [obs]
+            found = False
+            for o in obstacles:
+                if ( o.CalculateOverlap(obs) > 0.0 ):
+                    found = True
+                    break
+            if ( not found ):
+                obstacles = obstacles + [obs]
         return obstacles
 
     def CreateProblemInstance(self):
@@ -89,7 +95,7 @@ class PathPlanningProblem:
             ix = random.uniform(0.0, self.width)
             iy = random.uniform(0.0, self.height)
 
-            oinitial = Obstacle(ix, iy, 0.1, 0.1 )
+            oinitial = Obstacle(ix, iy, 0.2, 0.2 )
             found = True
             for obs in self.obstacles:
                 if (obs.CalculateOverlap(oinitial) > 0.0):
@@ -101,7 +107,7 @@ class PathPlanningProblem:
             gx = random.uniform(0.0, self.width)
             gy = random.uniform(0.0, self.height)
 
-            ogoal = Obstacle(gx, gy, 0.1, 0.1 )
+            ogoal = Obstacle(gx, gy, 0.2, 0.2 )
             found = True
             for obs in self.obstacles:
                 if ( obs.CalculateOverlap( ogoal ) > 0.0 ):
@@ -109,7 +115,10 @@ class PathPlanningProblem:
                     break
             if (oinitial.CalculateOverlap(ogoal) > 0.0):
                 found = False
-
+        oinitial.width = 0.1
+        oinitial.height = 0.1
+        ogoal.width = 0.1
+        ogoal.height = 0.1
         return oinitial, ogoal
 
     def CheckOverlap(self, r):
@@ -129,5 +138,3 @@ class PathPlanningProblem:
             j = int(p[0]/dim)
             counts[j][i] = counts[j][i] + 1
         return (x,y,counts)
-
-
